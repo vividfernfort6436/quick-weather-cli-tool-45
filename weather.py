@@ -1,33 +1,47 @@
 """
-Weather Cli - Main module.
+Weather Cli - Main module with CLI support.
 """
+import argparse
 import sys
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
+
+def process(records):
+    """Process input data."""
+    results = []
+    for item in records:
+        result = item.strip()
+        if result:
+            results.append(result)
+    return results
 
 def run(args):
     """Main entry point."""
-    print(f"Weather Cli v{VERSION}")
-    if args:
-        print(f"Processing: {', '.join(args)}")
-        process(args)
-    else:
-        print("Usage: python weather.py [arguments]")
-        print("Try: python weather.py --help")
+    if args.version:
+        print(f"Weather Cli v{VERSION}")
+        return
 
-def process(args):
-    """Process input arguments."""
-    records = []
-    for arg in args:
-        result = arg.strip()
-        if result:
-            records.append(result)
-            print(f"  Processed: {result}")
-    print(f"\nTotal: {len(records)} items processed")
-    return records
+    if not args.input:
+        print("No input provided. Use --help for usage.")
+        return
+
+    results = process(args.input)
+    if args.output:
+        with open(args.output, "w") as f:
+            for r in results:
+                f.write(r + "\n")
+        print(f"Output written to {args.output}")
+    else:
+        for r in results:
+            print(r)
 
 def main():
-    run(sys.argv[1:])
+    parser = argparse.ArgumentParser(description="Weather Cli")
+    parser.add_argument("input", nargs="*", help="Input data")
+    parser.add_argument("-o", "--output", help="Output file")
+    parser.add_argument("-v", "--version", action="store_true", help="Show version")
+    args = parser.parse_args()
+    run(args)
 
 if __name__ == "__main__":
     main()
